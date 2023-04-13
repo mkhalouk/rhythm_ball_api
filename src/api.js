@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors')
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const schedule = require('node-schedule');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -11,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(express.urlencoded())
 // app.use(express.json());
 app.use(cors());
-const uri = 'mongodb+srv://rhythmgame:rhythmgame@rhythmgame.5b3ushb.mongodb.net/?retryWrites=true&w=majority'
+const uri = 'mongodb+srv://rhythmgame:rhythmgame@rhythmgame.5b3ushb.mongodb.net/rhythmgamedb?retryWrites=true&w=majority'
 
 async function connect() {
     try {
@@ -25,9 +26,9 @@ async function connect() {
 connect();
 
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
+    username: { type: String, index: { unique: true, dropDups: true } },
     score: { type: Number, default: 0 },
+    date: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model('User', userSchema);
@@ -40,7 +41,6 @@ app.post('/insertUser', async (req, res) => {
     try {
         const user = new User({
             username: req.body.username,
-            password: req.body.password,
         });
         await user.save();
         res.send(user);
@@ -102,7 +102,21 @@ app.post('/deleteUser', async (req, res) => {
     }
 });
 
-app.listen(PORT, function(err){
+app.listen(PORT, function (err) {
     if (err) console.log("Error in server setup")
     console.log("Server listening on Port", PORT);
 });
+
+// execute this job everytime at midnight
+schedule.scheduleJob('0 0 * * * ', function () {
+    console.log("Deleting old users (>24 hours)");
+    // delete users older than 24 hours
+    User.deleteMany({ date: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } })
+        .then(() => {
+            console.log("Users deleted successfully");
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    console.log("Done");
+})
