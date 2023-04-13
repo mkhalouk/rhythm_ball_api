@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(express.urlencoded())
 // app.use(express.json());
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*"); 
+    res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     next()
@@ -33,7 +33,7 @@ connect();
 
 const userSchema = new mongoose.Schema({
     username: { type: String, index: { unique: true, dropDups: true } },
-    score: { type: Number, default: 0 },
+    score: { type: Number },
     date: { type: Date, default: Date.now },
 });
 
@@ -45,10 +45,22 @@ app.get('/', (req, res) => {
 
 app.post('/insertUser', async (req, res) => {
     try {
-        const user = new User({
-            username: req.body.username,
-        });
-        await user.save();
+        const username = req.body.username;
+        const score = req.body.score;
+
+        // Check if user already exists
+        let user = await User.findOne({ username });
+
+        if (user) {
+            // Update existing user's score
+            user.score = score;
+            await user.save();
+        } else {
+            // Create new user
+            user = new User({ username, score });
+            await user.save();
+        }
+
         res.send(user);
     } catch (error) {
         console.log(error);
