@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors')
 const mongoose = require('mongoose');
 const app = express();
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json())
 app.use(cors());
 const uri = 'mongodb+srv://rhythmgame:rhythmgame@rhythmgame.5b3ushb.mongodb.net/?retryWrites=true&w=majority'
 
@@ -23,6 +26,10 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+
+app.get('/', (req, res) => {
+    res.sendStatus(200)
+})
 
 app.post('/users', async (req, res) => {
     try {
@@ -90,4 +97,4 @@ app.delete('/users/:username', async (req, res) => {
     }
 });
 
-console.log('Listening on port '+process.env.PORT);
+console.log('Listening on port ' + process.env.PORT);
