@@ -125,8 +125,8 @@ app.listen(PORT, function (err) {
     console.log("Server listening on Port", PORT);
 });
 
-// execute this job everytime at midnight
-schedule.scheduleJob('0 0 * * * ', function () {
+// Uncomment if you want to execute this job everytime at midnight (it deletes users older than 24 hours)
+/*schedule.scheduleJob('0 0 * * * ', function () {
     console.log("Deleting old users (>24 hours)");
     // delete users older than 24 hours
     User.deleteMany({ date: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } })
@@ -137,4 +137,4 @@ schedule.scheduleJob('0 0 * * * ', function () {
             console.log(err);
         });
     console.log("Done");
-})
+})*/
