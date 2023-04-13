@@ -1,7 +1,8 @@
 const express = require('express');
+const cors = require('cors')
 const mongoose = require('mongoose');
 const app = express();
-
+app.use(cors());
 const uri = 'mongodb+srv://rhythmgame:rhythmgame@rhythmgame.5b3ushb.mongodb.net/?retryWrites=true&w=majority'
 
 async function connect() {
@@ -89,6 +90,4 @@ app.delete('/users/:username', async (req, res) => {
     }
 });
 
-app.listen(8000, () => {
-    console.log('Server is running on port 8000');
-});
+console.log('Listening on port '+process.env.PORT);
