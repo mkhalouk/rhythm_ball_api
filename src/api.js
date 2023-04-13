@@ -1,10 +1,15 @@
 const express = require('express');
 const cors = require('cors')
 const mongoose = require('mongoose');
-const app = express();
 const bodyParser = require('body-parser');
+const app = express();
+const PORT = process.env.PORT || 8000;
 
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// app.use(express.urlencoded())
+// app.use(express.json());
 app.use(cors());
 const uri = 'mongodb+srv://rhythmgame:rhythmgame@rhythmgame.5b3ushb.mongodb.net/?retryWrites=true&w=majority'
 
@@ -31,7 +36,7 @@ app.get('/', (req, res) => {
     res.sendStatus(200)
 })
 
-app.post('/users', async (req, res) => {
+app.post('/insertUser', async (req, res) => {
     try {
         const user = new User({
             username: req.body.username,
@@ -68,9 +73,9 @@ app.get('/users/:username', async (req, res) => {
     }
 });
 
-app.put('/users/:username', async (req, res) => {
+app.post('/updateScore', async (req, res) => {
     try {
-        const user = await User.findOne({ username: req.params.username });
+        const user = await User.findOne({ username: req.body.username });
         if (!user) {
             return res.sendStatus(404);
         }
@@ -83,9 +88,9 @@ app.put('/users/:username', async (req, res) => {
     }
 });
 
-app.delete('/users/:username', async (req, res) => {
+app.post('/deleteUser', async (req, res) => {
     try {
-        const user = await User.findById({ username: req.params.username });
+        const user = await User.findById({ username: req.body.username });
         if (!user) {
             return res.sendStatus(404);
         }
@@ -97,4 +102,7 @@ app.delete('/users/:username', async (req, res) => {
     }
 });
 
-console.log('Listening on port ' + process.env.PORT);
+app.listen(PORT, function(err){
+    if (err) console.log("Error in server setup")
+    console.log("Server listening on Port", PORT);
+});
